@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlantScan - Identificador de plantas</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      height: 100vh;
+      background-image:
+        linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
+        url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+    .contenedor {
+      text-align: center;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      color: white;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    video, canvas {
+      width: 100%;
+      border-radius: 12px;
+      margin-top: 15px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 15px 30px;
+      background: #22c55e; 
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      transition: 0.3s;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #16a34a;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="contenedor">
+    <div class="logo">🌿</div>
+    <h1>plantScan</h1>
+    <p>Usa tu cámara trasera para capturar una planta y luego identifícala en PlantNet.</p>
+
+    <!-- Vista previa cámara trasera -->
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <!-- Botón capturar -->
+    <button class="btn" id="snap">📷 Capturar planta</button>
+
+    <!-- Botón descargar -->
+    <a class="btn" id="download" style="display:none;" download="planta.jpg">⬇️ Descargar foto</a>
+
+    <!-- Botón PlantNet -->
+    <a class="btn" href="https://identify.plantnet.org/" target="_blank">🌸 Identificar en PlantNet</a>
+
+    <div class="footer">Identificación de plantas en tiempo real 🏞️</div>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log("Service Worker registrado"));
+    }
+
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const snap = document.getElementById('snap');
+    const download = document.getElementById('download');
+
+    // Cámara trasera
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } } })
+      .then(stream => { video.srcObject = stream; })
+      .catch(err => {
+        alert("No se pudo acceder a la cámara trasera: " + err);
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(stream => { video.srcObject = stream; })
+          .catch(err2 => { alert("No se pudo acceder a ninguna cámara: " + err2); });
+      });
+
+    // Captura y descarga
+    snap.addEventListener('click', () => {
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const dataURL = canvas.toDataURL("image/jpeg");
+      download.href = dataURL;
+      download.style.display = "inline-block";
+      alert("Foto capturada. Descárgala y súbela en PlantNet.");
+    });
+  </script>
+</body>
+<style>html{
+ color:darkviolet;
+ font-size:25px;
+ font-weight:600;
+}
+</style><script>/*Here write your javascript code*/</script></html>
